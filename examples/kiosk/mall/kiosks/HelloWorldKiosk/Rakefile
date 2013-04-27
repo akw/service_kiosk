@@ -1,0 +1,17 @@
+Dir[File.join("lib", "**/*.rb")].each do |f|
+  require './' + f
+end
+
+task :default => [:cucumber]
+
+task :bundle do
+  system "jruby -S bundle install"
+end
+
+task :run do
+  system "jruby -S foreman start"
+end
+
+task :remote do
+  exec 'ruby ./lib/hello_world_sinatra.rb'
+end

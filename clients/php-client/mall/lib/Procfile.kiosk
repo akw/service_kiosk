@@ -1,0 +1,1 @@
+kiosk: jruby ../../lib/mall.rb
