@@ -1,0 +1,42 @@
+task :start do
+  unless mall_running?
+    unless pid = fork
+      exec 'foreman start > log/foreman.log 2>&1 & echo $! > log/pid'
+    end
+    sleep 0.1
+    puts "Mall is opening (pid: #{mall_pid})"
+  else
+    puts "Mall already opened (pid: #{mall_pid})"
+  end
+end
+
+task :stop do
+  if mall_running?
+    group = `ps axj`.match(/\d+\s+#{mall_pid}\s+(\d+).*foreman/m)[1]
+    system "pkill -g #{group}"
+    File.delete pidfile
+    puts "Mall is closing..."
+  else
+    puts "Mall already closed"
+  end
+end
+
+task :log do
+  exec "tail -n 200 --pid=#{mall_pid} -f log/foreman.log"
+end
+
+task :mallcop do
+  system 'jruby lib/mallcop.rb'
+end
+
+def mall_pid
+  File.read(pidfile).strip
+end
+
+def mall_running?
+  File.exists?(pidfile)
+end
+
+def pidfile
+  'log/pid'
+end

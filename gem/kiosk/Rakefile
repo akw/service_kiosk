@@ -16,7 +16,15 @@ task :destroy do
 end
 
 task :start do
-  system "vagrant ssh -c 'cd /vagrant/mall; foreman start'"
+  exec "vagrant ssh -c 'cd /vagrant/mall; /usr/local/bin/rake start'"
+end
+
+task :log do
+  exec "vagrant ssh -c 'cd /vagrant/mall; /usr/local/bin/rake log'"
+end
+
+task :stop do
+  exec "vagrant ssh -c 'cd /vagrant/mall; /usr/local/bin/rake stop'"
 end
 
 task :test do

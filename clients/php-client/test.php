@@ -4,8 +4,8 @@ include 'kiosk.php';
 
 print "<hr>Read operation: <p/>";
 
-$kiosk = new ServiceKiosk\Kiosk('http://localhost:9901/Toolshed');
-$service = $kiosk->service('HelloWorldKiosk');
+$kiosk = new ServiceKiosk\Kiosk('http://localhost:9902/com.countabout.yodlee.kiosk');
+$service = $kiosk->service('YodleeUserKiosk');
 
 print "svc kiosk:<p>\n";
 $input = array("id" => "4", "q" => "Herman", "box" => "Mister", "box?" => "yes", "top" => 12, "name" => "Monty");

@@ -1,7 +1,0 @@
-task :start do
-  system 'foreman start'
-end
-
-task :mallcop do
-  system 'jruby lib/mallcop.rb'
-end
