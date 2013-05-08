@@ -75,6 +75,7 @@ class RestRequest
 	public function buildPostBody ($data = null)
 	{
 		$data = ($data !== null) ? $data : $this->requestBody;
+    //print "<p>bpb: $data " . is_string($data);
 		
 		if(is_array($data)) {
       //$data = http_build_query($data, '', '&');
@@ -85,8 +86,8 @@ class RestRequest
 			throw new InvalidArgumentException('Invalid data input for postBody.  Array expected');
     }
 		
-		$this->requestBody = "data=$data";
-    print "<p>building post body: $this->requestBody</p>";
+		$this->requestBody = "$data";
+    //print "<p>building post body: $this->requestBody</p>";
 	}
 	
 	protected function executeGet ($ch) {		
@@ -101,8 +102,8 @@ class RestRequest
     curl_setopt($ch, CURLOPT_HTTPHEADER, array("Content-Length: " . strlen($this->requestBody), "Content-Type: application/json; charset=utf-8","Accept:application/json, text/javascript, */*; q=0.01")); 
 		curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "POST");
 		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-		//curl_setopt($ch, CURLOPT_POSTFIELDS, 'data=' . $this->requestBody);
-		curl_setopt($ch, CURLOPT_POSTFIELDS, $this->requestBody);
+		curl_setopt($ch, CURLOPT_POSTFIELDS, 'data=' . $this->requestBody);
+		//curl_setopt($ch, CURLOPT_POSTFIELDS, $this->requestBody);
 		curl_setopt($ch, CURLOPT_POST, 1);
 		
 		$this->doExecute($ch);	

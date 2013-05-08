@@ -19,9 +19,11 @@ class RemoteService {
   }
 
   public function call($action, $input=null) {
-    $rest = new \RestRequest($this->action_url($action), 'POST', $input);
+    $encoded = base64_encode(json_encode($input));
+    print "<br>encoded: $encoded<br>\n";
+    $rest = new \RestRequest($this->action_url($action), 'POST', $encoded);
     $rest->execute();
-    return json_decode($rest->getResponseBody());
+    return json_decode(base64_decode($rest->getResponseBody()));
   }
 
   private function action_url($action) {
@@ -48,18 +50,6 @@ class RemoteService {
 
   public function delete_resource($input=null) {
     return $this->call('delete', $input);
-  }
-
-  private function url($id=null, $input=null) {
-    $result = $this->endpoint;
-    if($id!=null) {
-      $result .= "/" . $id;
-    }
-    if($input!=null && is_array($input) && sizeof($input) > 0) {
-      $result .= "?data=" . urlencode(json_encode($input));
-    }
-    print "url reulst: " . $result . "<p>";
-    return $result;
   }
 }
 ?>

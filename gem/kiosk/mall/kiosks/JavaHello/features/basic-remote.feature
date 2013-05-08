@@ -4,8 +4,8 @@ Feature: Hello Worlds
   I want to be able to call a remote kiosk and get a response
 
   Background:
-    Given the kiosk found at 'http:///Sample'
-      And the resource 'JavaHello' in the kiosk
+    Given the kiosk found at 'http:///com.countabout.yodlee.kiosk'
+      And the resource 'YodleeUserKiosk' in the kiosk
 
   Scenario: Basic Remote List Call
     When the resource's list method is called

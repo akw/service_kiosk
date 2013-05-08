@@ -1,4 +1,6 @@
+require_relative 'kiosk'
 require 'json'
+require 'base64'
 require 'rest_client'
 require 'open-uri'
 
@@ -6,6 +8,8 @@ module ServiceKiosk
   class RemoteService
     def initialize(kiosk, service)
       @endpoint = external_host(kiosk + '/' + service)
+      @logger = ServiceKiosk::Kiosk.open('logger').service('Logger') unless @logger
+      debug "remote service wants to use a logger: " + @logger.inspect
     end
 
     def url(id=nil, input=nil)
@@ -24,9 +28,10 @@ module ServiceKiosk
     end
 
     def call(action, input={})
-puts ">>> kiosk call: #{action} -> #{input.to_json}"
-      response = RestClient.post action_url(action), {data: input.to_json}
-      JSON.parse response
+      input_json = input.to_json
+      debug "kiosk call: #{action} -> #{input_json}"
+      response = RestClient.post action_url(action), {data: Base64.encode64(input_json)}
+      JSON.parse Base64.decode64(response)
     end
 
     def list(input={})
@@ -47,6 +52,10 @@ puts ">>> kiosk call: #{action} -> #{input.to_json}"
 
     def delete(input={})
       call('delete', input)
+    end
+
+    def debug(message)
+      @logger.call('log', {'debug' => message})
     end
   end
 end

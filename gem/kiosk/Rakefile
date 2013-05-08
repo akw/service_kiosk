@@ -27,7 +27,11 @@ task :stop do
   exec "vagrant ssh -c 'cd /vagrant/mall; /usr/local/bin/rake stop'"
 end
 
-task :test do
+task :rubytest do
+  system "vagrant ssh -c 'cd /vagrant/mall/kiosks/HelloWorldKiosk; env KIOSK_LOGGER=ruby:///OutputLogger cucumber -s'"
+end
+
+task :javatest do
   system "vagrant ssh -c 'cd /vagrant/mall/kiosks/JavaHello; cucumber -s'"
 end
 
