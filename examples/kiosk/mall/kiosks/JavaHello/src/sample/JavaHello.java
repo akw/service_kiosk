@@ -22,6 +22,7 @@ public class JavaHello {
 
   public Map create(Map input) {
     Map result = new LinkedHashMap();
+System.out.println(">>> create: " + input.get("box"));
     result.put("greeting", "Hello " + input.get("box"));
     return result;
   }

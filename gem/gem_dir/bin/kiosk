@@ -1,0 +1,55 @@
+#!/usr/bin/env ruby
+
+require 'kiosk'
+require 'json'
+
+def gem_dir
+  ServiceKiosk::Kiosk.gem_dir
+end
+
+def config
+  file = File.read('Kioskfile.json')
+  JSON.parse file
+end
+
+case ARGV[0] 
+when 'plaza:init', 'init'
+  boxes = `vagrant box list`
+  if(/precise32/m.match boxes)
+    puts 'plaza already initialized'
+  else
+    system 'vagrant init precise32 http://files.vagrantup.com/precise32.box'
+  end
+
+when 'plaza:up', 'up'
+  system 'vagrant up'
+
+when 'plaza:down', 'down'
+  system 'vagrant destroy'
+
+when 'plaza:ssh', 'ssh'
+  system 'vagrant ssh'
+
+when 'mall:open', 'open'
+  exec "vagrant ssh -c 'cd /vagrant/mall; /usr/local/bin/rake kiosk:start'"
+
+when 'mall:close', 'close'
+  exec "vagrant ssh -c 'cd /vagrant/mall; /usr/local/bin/rake kiosk:stop'"
+
+when 'mall:log', 'log'
+  exec "vagrant ssh -c 'cd /vagrant/mall; /usr/local/bin/rake kiosk:log'"
+
+when 'kiosk:run', 'run'
+  env = config['kiosks'][ARGV[1]]['env']
+  mall = gem_dir + "/lib/mall.rb"
+  dir = Dir.pwd + '/kiosks/' + ARGV[1]
+  puts "env: #{env.inspect}"
+  puts "mall: #{mall}"
+  puts "dir: #{dir}"
+  jruby = `which jruby`.strip
+  exec(env, "#{jruby} #{mall}", :chdir => dir, :unsetenv_others => true)
+
+else
+  puts "Usage: $0 {plaza:init|plaza:up|plaza:down|plaza:ssh|mall:open|mall:close|mall:log}"
+end
+

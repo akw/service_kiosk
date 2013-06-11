@@ -1,0 +1,14 @@
+{
+  "kiosks": {
+    "HelloWorldKiosk": {
+      "env": {
+        "KIOSK_PORT": "8001"
+      }
+    },
+    "JavaHello": {
+      "env": {
+        "KIOSK_PORT": "8002"
+      }
+    }
+  }
+}
