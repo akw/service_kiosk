@@ -1,9 +1,9 @@
 Gem::Specification.new do |s|
   s.name        = 'service_kiosk'
-  s.version     = '0.2.0'
+  s.version     = '0.5.0'
   s.homepage    = 'http://github.com/akw/service_kiosk'
-  s.date        = '2013-05-29'
-  s.summary     = "Kiosk is a cross-lingual software service component system"
+  s.date        = '2013-06-11'
+  s.summary     = "Kiosk is a programming language agnostic software service component system"
   s.description = <<-EOS
     The Kiosk framework allows you to divide your software system to be divided into
     small, single-purpose software components.  Parameters and return values are passed as data
