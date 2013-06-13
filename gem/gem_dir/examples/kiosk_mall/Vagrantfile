@@ -17,9 +17,9 @@ Vagrant::Config.run do |config|
   config.vm.forward_port 9909, 9909
   config.vm.forward_port 9910, 9910
 
-  config.vm.provision :puppet, :module_path => ENV['KIOSK_GEM_DIR'] + "provision/modules" do |puppet|
-    puppet.manifests_path = ENV['KIOSK_GEM_DIR'] + "provision/manifests"
+  config.vm.provision :puppet, :module_path => ENV['KIOSK_GEM_DIR'] + "/provision/modules" do |puppet|
+    puppet.manifests_path = ENV['KIOSK_GEM_DIR'] + "/provision/manifests"
     puppet.manifest_file  = "default.pp"
   end
-  config.vm.provision :shell, :path => ENV['KIOSK_GEM_DIR'] + "provision/bootstrap.sh"
+  config.vm.provision :shell, :path => ENV['KIOSK_GEM_DIR'] + "/provision/bootstrap.sh"
 end

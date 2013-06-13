@@ -8,6 +8,10 @@ namespace :kiosk do
     end
   end
 
+  task :gem_push do
+    exec "gem push service_kiosk-0.5.0.gem"
+  end
+
   task :up do
     system 'vagrant up'
   end
