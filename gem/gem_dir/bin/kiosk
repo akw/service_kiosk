@@ -22,7 +22,7 @@ when 'plaza:init', 'init'
   if(/precise32/m.match boxes)
     puts 'plaza already initialized'
   else
-    vagrant_exec 'vagrant init precise32 http://files.vagrantup.com/precise32.box'
+    vagrant_exec 'vagrant box add precise32 http://files.vagrantup.com/precise32.box'
   end
 
 when 'plaza:up', 'up'

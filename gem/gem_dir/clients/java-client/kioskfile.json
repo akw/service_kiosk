@@ -1,0 +1,85 @@
+{
+  "name": "java_hello",
+  "version": "0.4.3",
+  "language": "java",
+  "description": "",
+  "resource_namespace": "org.toolshed.kiosk",
+
+
+
+  "settings": {
+    "one_opt": {
+      "description": "[OPTIONAL] this is an optional setting",
+      "default_value": "boxtop"
+    },
+    "two": {
+      "description": "this is another setting" 
+    }
+  },
+
+  "dependencies": {
+    "cache/Item": {
+      "injector": "setResource",
+      "interface_mode": "json",
+      "dependencies": {
+        "yodlee/yodlee_session": {}
+      }
+    },
+    "bro/greg": {
+      "interface_mode": "native"
+    }
+  },
+
+  "kiosks": {
+    "yodlee": ["yodlee", "> 0.5"],
+    "cache": ["memory_cache"],
+    "backup": ["memory_cache"]
+  },
+}
+
+// another example
+
+{
+  "name": "java_hello",
+  "version": "0.4.3",
+  "language": "java",
+  "description": "",
+  "resource_namespace": "org.toolshed.kiosk",
+  "public_resources": {
+    "java_hello": "org.toolshed.kiosk.JavaHello",
+    "second_resource": "org.toolshed.kiosk.util.SecondResource"
+  },
+
+  "settings": {
+    "one_opt": {
+      "description": "[OPTIONAL] this is an optional setting",
+      "default_value": "boxtop"
+    },
+    "two": {
+      "description": "this is another setting" 
+    }
+  },
+
+  "dependencies":
+  "wiring": {
+    "kiosk/resource": {
+      "injector": "setResource",
+      "interface_mode": "json",
+      "wiring": {
+        "yodlee/yodlee_session": {
+          "settings": {
+            "setting1": "value"
+          }
+        }
+      }
+    },
+    "bro/greg": {
+      "interface_mode": "native"
+    }
+  },
+
+  "kiosks": {
+    "yodlee": ["yodlee", "> 0.5"],
+    "cache": ["memory_cache"]
+  },
+}

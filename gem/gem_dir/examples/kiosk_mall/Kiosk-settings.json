@@ -1,0 +1,4 @@
+{
+  "dependencies": [ "memorycache", "external_service" ]
+}
+
