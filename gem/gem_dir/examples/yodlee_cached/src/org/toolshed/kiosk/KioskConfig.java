@@ -135,8 +135,4 @@ public class KioskConfig {
             null : 
             (String) env.get(baseName(name, config, prefix));
   }
-
-  public static Boolean isWired(String name, Map config, Map env, String prefix) {
-    return env.containsKey(baseName(name, config, prefix));
-  }
 }

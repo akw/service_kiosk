@@ -21,6 +21,7 @@ public class YodleeCached {
     public Map one();
     public Map two(int count, String name);
     public Map three(int count, String name);
+    public String four(int count, String name);
   }
 
   private ServiceLister lister;
@@ -73,5 +74,9 @@ public class YodleeCached {
       is_good = true;
     }
     System.out.println("Pass method missing with args:      [ " + is_good + " ] ");
+
+    String greeting  = lister.four(1, "key");
+    System.out.println("remote result:      [ " + greeting + " ] ");
+
   }
 }

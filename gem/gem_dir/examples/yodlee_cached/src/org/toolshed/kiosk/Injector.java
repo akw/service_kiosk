@@ -22,7 +22,7 @@ public class Injector {
 
     for(Object dependency : KioskConfig.getDependencies(config)) {
       String dependencyName = (String) dependency;
-      if(!KioskConfig.isWired(dependencyName, config, env, prefix)) {
+      if(null==KioskConfig.dependencyUrl(dependencyName, config, env, prefix)) {
         throw new KioskException("No dependency defined for " + dependencyName);
       }
       if(resources.containsKey(dependency)) {
@@ -58,6 +58,7 @@ public class Injector {
 
     } else {
       System.out.println("[Kiosk] injecting remote: " + dependencyUrl);
+      resource = new RemoteResource( dependencyUrl );
       //  create remote resource
     }
 
