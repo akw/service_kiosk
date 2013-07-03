@@ -1,0 +1,20 @@
+{
+  "name": "yodlee_cached",
+  "version": "0.1.0",
+  "language": "java",
+  "description": "Call the Yodlee API to aggregate financial data.",
+
+  "settings": {
+    "APPLICATION_LOGIN": {
+      "description": "Credentials for connecting to Yodlee API"
+    },
+    "APPLICATION_PASSWORD": {
+      "description": "Credentials for connecting to Yodlee API"
+    }
+  },
+
+  "dependencies": {
+  },
+
+  "namespace": "sample"
+}

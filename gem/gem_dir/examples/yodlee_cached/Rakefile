@@ -1,0 +1,30 @@
+task :default => [:kiosk_cc, :kiosk_jar, :client_cc, :client]
+task :client do
+  system "foreman run -e 'development.env' java -cp 'classes:lib/*' example.YodleeCached"
+end
+
+task :client_cc do
+  system "javac -sourcepath src -d classes -cp lib/json-simple-1.1.1.jar:lib/kiosk.jar:. " + client_sources
+end
+
+task :kiosk_cc do
+  system "javac -sourcepath src -d classes -cp lib/json-simple-1.1.1.jar:. " + kiosk_sources
+end
+
+task :kiosk_jar do
+  Dir.chdir 'classes'
+  system "jar cf ../lib/kiosk.jar " + kiosk_classes
+  Dir.chdir '..'
+end
+
+def kiosk_sources
+  Dir["./src/org/toolshed/kiosk/**/*.java"].join(' ')
+end
+
+def kiosk_classes
+  Dir["./org/toolshed/kiosk/**/*.class"].join(' ')
+end
+
+def client_sources
+  Dir["./src/example/**/*.java"].join(' ')
+end
