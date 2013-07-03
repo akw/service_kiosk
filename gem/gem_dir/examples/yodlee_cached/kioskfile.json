@@ -19,7 +19,7 @@
     },
 
     "indexer": {
-      "resource": "ServiceIndexer",
+      "resource": "ServiceLister",
       "kiosk": ["yodlee", "*"],
       "description": "A module that lists financial institutions from Yodlee.com"
     }

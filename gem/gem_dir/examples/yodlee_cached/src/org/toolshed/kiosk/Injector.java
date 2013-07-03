@@ -2,61 +2,112 @@ package org.toolshed.kiosk;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.io.File;
+import java.net.URLClassLoader;
+import java.net.URL;
 import java.lang.reflect.*;
+import org.json.simple.JSONValue;
 
 public class Injector {
   private static Injector injector = new Injector();
 
   public static Injector instance() {
-    System.out.println(">>> Injector.instance");
     return injector;
   }
 
   private Map resources = new HashMap();
-  private Map kiosks = new HashMap();
 
-  public void injectAll(Object node, Map config) {
-    Object kiosk;
-    for(Object name : getWiring(config)) {
-      System.out.println("name = " + (String)name);
-      if(resources.containsKey(name)) {
-        kiosk = resources.get(name);
-      } else {
-        // need to build this kiosk now
+  public void injectAll(Object node, Map config, Map env, String prefix) {
+    Object resource = null;
+
+    for(Object dependency : KioskConfig.getDependencies(config)) {
+      String dependencyName = (String) dependency;
+      if(!KioskConfig.isWired(dependencyName, config, env, prefix)) {
+        throw new KioskException("No dependency defined for " + dependencyName);
       }
-      inject(node, kiosk, injectorName((String) name, config));
+      if(resources.containsKey(dependency)) {
+        resource = resources.get(dependency);
+        injectAll(resource, KioskConfig.readConfig(dependencyName, config), env, dependencyName);
+
+      } else {
+        resource = createResource(dependency, config, env, prefix);
+        resources.put(dependency, resource);
+      }
+      inject(node, resource, injectorName(dependency, config));
     }
-    /*
-    System.out.println(">>> HERE");
-    Object[] fakeArgs = new Object[] {node};
-    fakeArgs[0] = node;
-    System.out.println("fakeArgs.length = " + fakeArgs.length);
-    Method m = KioskUtils.findMethod(node, "setLister", fakeArgs);
-    Class c = m.getParameterTypes()[0];
-    Object proxiedKiosk = KioskProxy.create(c, new Lister());
+  }
+
+  public Object createResource(Object nameObject, Map config, Map env, String prefix) {
+    String dependencyName = (String) nameObject;
+    String dependencyUrl = KioskConfig.dependencyUrl(dependencyName, config, env, prefix);
+    Object resource = null;
+
+    if(isInternalResource(dependencyUrl)) {
+      System.out.println("[Kiosk] injecting: " + dependencyUrl);
+
+      if(resources.containsKey(resourceKey(dependencyUrl))) {
+        resource = resources.get(resourceKey(dependencyUrl));
+
+      } else {
+        URL[] jars = KioskConfig.findJars(dependencyName, config);
+
+        Map kioskConfig = KioskConfig.readConfig(dependencyName, config);
+        String resourceClass = KioskConfig.findResourceClass(dependencyName, config, kioskConfig);
+        resource = internalResource(dependencyName, resourceClass, jars);
+      }
+
+    } else {
+      System.out.println("[Kiosk] injecting remote: " + dependencyUrl);
+      //  create remote resource
+    }
+
+    if(null==resource) {
+      throw new KioskException("Couldn't create resource '" + dependencyName + "'");
+    }
+    return resource;
+  }
+
+  public String resourceKey(String url) {
     try {
-      m.invoke(node, proxiedKiosk);
+      String[] parts = url.split("/");
+      return parts[parts.length-1];
+    } catch( Exception e ) {
+      throw new KioskException("Invalid resource url: " + url);
+    }
+  }
+
+  public Object internalResource(String resourceName, String className, URL[] jars) {
+    Class resourceClass;
+    Object result;
+    try {
+      URLClassLoader child = new URLClassLoader( jars, this.getClass().getClassLoader() );
+      resourceClass = Class.forName(className, true, child);
+      result = resourceClass.newInstance();
+    } catch( Exception e ) {
+      throw new KioskException("Couldn't create " + resourceName + ": " + e.getMessage());
+    }
+    return result;
+  }
+
+  public String injectorName(Object key, Map config) {
+    // TBD: handle custom injectors
+    String injector = "set" + KioskUtils.capitalize((String)key);
+    return injector;
+  }
+
+  public void inject(Object target, Object resource, String injector) {
+    try {
+      Method injectorMethod = KioskUtils.findMethodWithParameterCount(target, injector, 1);
+      Class dependency = injectorMethod.getParameterTypes()[0];
+      Object proxiedKiosk = ResourceProxy.create(dependency, resource);
+      injectorMethod.invoke(target, proxiedKiosk);
     } catch(Exception e) {
+      System.out.println("[Kiosk] WARNING: Unused dependency.  No injector '" + injector + "'");
       e.printStackTrace();
     }
-    */
-    System.out.println(">>> HERE");
-    //loop over dependencies
-      //lookup resource or create resource
-      //wrap the service object with a kiosk proxy that implements the declared class and uses invokedynamic to expose the methods
-      //inject child into node
-      //injectAll(child, childConfig)
   }
 
-  public Set getWiring(Map config) {
-    return ((Map) config.get("wiring")).keySet();
-  }
-
-  class Lister {
-    public Map listAll() {
-      Map list = new HashMap();
-      list.put("UW Credit Union", "53934");
-      return list;
-    }
+  public Boolean isInternalResource(String url) {
+    return url.startsWith("kiosk://");
   }
 }

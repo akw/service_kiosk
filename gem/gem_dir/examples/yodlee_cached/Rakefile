@@ -1,6 +1,6 @@
 task :default => [:kiosk_cc, :kiosk_jar, :client_cc, :client]
 task :client do
-  system "java -cp 'classes:lib/*' example.YodleeCached"
+  system "foreman run -e 'development.env' java -cp 'classes:lib/*' example.YodleeCached"
 end
 
 task :client_cc do
