@@ -83,6 +83,12 @@ public class KioskConfig {
             ((Map) config.get("dependencies")).keySet();
   }
 
+  public static Set getSettings(Map config) {
+    return !config.containsKey("settings") ?
+            new HashSet() :
+            ((Map) config.get("settings")).keySet();
+  }
+
   public static String kioskName(Map config) {
     // TBD: allow name to be specified instead of an array
     return (String) ((List) config.get("kiosk")).get(0);
@@ -123,16 +129,26 @@ public class KioskConfig {
     return result;
   }
 
-  public static String baseName(String name, Map config, String prefix) {
+  public static String resourceLabel(String name, String prefix) {
     if(null==prefix || 0==prefix.length()) {
-      return "KIOSK_" + name.toUpperCase();
+      return name;
     }
-    return "KIOSK_" + prefix.toUpperCase() + "_" + name.toUpperCase();
+    return prefix + "_" + name;
   }
 
-  public static String dependencyUrl(String name, Map config, Map env, String prefix) {
-    return !env.containsKey(baseName(name, config, prefix)) ?
+  public static String baseName(String name, String prefix) {
+    return ("KIOSK_" + resourceLabel(name, prefix)).toUpperCase();
+  }
+
+  public static String dependencyUrl(String name, Map env, String prefix) {
+    return !env.containsKey(baseName(name, prefix)) ?
             null : 
-            (String) env.get(baseName(name, config, prefix));
+            (String) env.get(baseName(name, prefix));
+  }
+
+  public static String setting(String name, Map env, String prefix) {
+    return !env.containsKey(baseName(name, prefix)) ?
+            null : 
+            (String) env.get(baseName(name, prefix));
   }
 }

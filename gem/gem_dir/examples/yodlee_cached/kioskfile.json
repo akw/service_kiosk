@@ -18,6 +18,12 @@
       "description": "An in-memory cache will store the content service index for TIMEOUT seconds"
     },
 
+    "backupcache": {
+      "resource": "CachedResource",
+      "kiosk": ["memory_cache", "*"],
+      "description": "A backup test cache"
+    },
+
     "indexer": {
       "resource": "ServiceLister",
       "kiosk": ["yodlee", "*"],

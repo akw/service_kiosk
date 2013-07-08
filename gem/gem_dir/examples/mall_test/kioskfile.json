@@ -1,0 +1,14 @@
+{
+  "name": "mall_test",
+  "version": "0.1.0",
+  "language": "java",
+  "description": "This shows how a mall works.",
+
+  "dependencies": {
+    "lister": {
+      "resource": "ServiceLister",
+      "kiosk": ["yodlee", "*"],
+      "description": "A module that interacts with Yodlee.com for aggregating financial data"
+    }
+  }
+}

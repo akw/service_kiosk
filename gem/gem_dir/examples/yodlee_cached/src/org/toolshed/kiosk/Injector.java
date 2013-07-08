@@ -17,17 +17,23 @@ public class Injector {
 
   private Map resources = new HashMap();
 
+  protected Map resourceMap() {
+    return resources;
+  }
+
   public void injectAll(Object node, Map config, Map env, String prefix) {
     Object resource = null;
 
     for(Object dependency : KioskConfig.getDependencies(config)) {
       String dependencyName = (String) dependency;
-      if(null==KioskConfig.dependencyUrl(dependencyName, config, env, prefix)) {
+      if(null==KioskConfig.dependencyUrl(dependencyName, env, prefix)) {
         throw new KioskException("No dependency defined for " + dependencyName);
       }
       if(resources.containsKey(dependency)) {
         resource = resources.get(dependency);
-        injectAll(resource, KioskConfig.readConfig(dependencyName, config), env, dependencyName);
+        if(null==prefix || 0==prefix.length()) {
+          injectAll(resource, KioskConfig.readConfig(dependencyName, config), env, dependencyName);
+        }
 
       } else {
         resource = createResource(dependency, config, env, prefix);
@@ -39,11 +45,11 @@ public class Injector {
 
   public Object createResource(Object nameObject, Map config, Map env, String prefix) {
     String dependencyName = (String) nameObject;
-    String dependencyUrl = KioskConfig.dependencyUrl(dependencyName, config, env, prefix);
+    String dependencyUrl = KioskConfig.dependencyUrl(dependencyName, env, prefix);
     Object resource = null;
 
     if(isInternalResource(dependencyUrl)) {
-      System.out.println("[Kiosk] injecting: " + dependencyUrl);
+      System.out.println("[Kiosk] resource " + KioskConfig.resourceLabel(dependencyName, prefix) + " -> " + dependencyUrl);
 
       if(resources.containsKey(resourceKey(dependencyUrl))) {
         resource = resources.get(resourceKey(dependencyUrl));
@@ -54,10 +60,12 @@ public class Injector {
         Map kioskConfig = KioskConfig.readConfig(dependencyName, config);
         String resourceClass = KioskConfig.findResourceClass(dependencyName, config, kioskConfig);
         resource = internalResource(dependencyName, resourceClass, jars);
+
+        injectAllSettings(resource, kioskConfig, env, dependencyName);
       }
 
     } else {
-      System.out.println("[Kiosk] injecting remote: " + dependencyUrl);
+      System.out.println("[Kiosk] remote resource " + dependencyUrl);
       resource = new RemoteResource( dependencyUrl );
       //  create remote resource
     }
@@ -66,6 +74,26 @@ public class Injector {
       throw new KioskException("Couldn't create resource '" + dependencyName + "'");
     }
     return resource;
+  }
+
+  public void injectAllSettings(Object resource, Map kioskConfig, Map env, String prefix) {
+    for(Object settingKey : KioskConfig.getSettings(kioskConfig)) {
+      injectSetting(resource, settingKey, kioskConfig, env, prefix);
+    }
+  }
+
+  public void injectSetting(Object resource, Object settingKey, Map kioskConfig, Map env, String prefix) {
+    String settingName = (String) settingKey;
+    String injectorName = injectorName(settingName, kioskConfig);
+    try {
+      String value = KioskConfig.setting(settingName, env, prefix);
+      System.out.println("[Kiosk] setting " + KioskConfig.resourceLabel(settingName, prefix) + "=" + value);
+      Method injectorMethod = KioskUtils.findMethodWithParameterCount(resource, injectorName, 1);
+      injectorMethod.invoke(resource, value);
+    } catch(Exception e) {
+      // e.printStackTrace();
+      throw new KioskException("No injector found: " + injectorName);
+    }
   }
 
   public String resourceKey(String url) {
@@ -104,7 +132,7 @@ public class Injector {
       injectorMethod.invoke(target, proxiedKiosk);
     } catch(Exception e) {
       System.out.println("[Kiosk] WARNING: Unused dependency.  No injector '" + injector + "'");
-      e.printStackTrace();
+      //e.printStackTrace();
     }
   }
 
