@@ -36,7 +36,7 @@ public class Arcade {
     Kiosk.setup(this);
     resources = Injector.instance().resourceMap();
     System.out.println("lister: " + resources.get("lister"));
-    get(new Route("/:resource/:action") {
+    post(new Route("/:resource/:action") {
       @Override
       public Object handle(Request request, Response response) {
         System.out.println("URL: " + request.url());
@@ -56,14 +56,7 @@ public class Arcade {
           result = errors;
           e.printStackTrace();
         }
-        String resultString = "[]";
-        if(null!=result) {
-          resultList.add(result);
-          resultString = JSONValue.toJSONString(resultList);
-        }
-        return resultString;
-        //return "Calling " + request.params(":resource") + "." + request.params(":action");
-        //return JSONValue.toJSONString(request.params);
+        return KioskUtils.marshallReturn(result);
       }
     });
   }

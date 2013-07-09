@@ -1,6 +1,7 @@
 package org.toolshed.kiosk;
 
 import java.lang.reflect.*;
+import java.util.ArrayList;
 import java.util.List;
 import javax.xml.bind.DatatypeConverter;
 import org.json.simple.JSONValue;
@@ -21,31 +22,59 @@ public class KioskUtils {
     return parameters;
   }
 
-  public static String marshall(Object[] arguments) {
-    Object[] parameters = new Object[0];
-    if(null!=arguments) {
-      parameters = arguments;
+  public static String marshallArguments(Object[] arguments) {
+    if(null==arguments) {
+      arguments = new Object[0];
     }
-    String json = JSONValue.toJSONString(parameters);
+    return "data=" + marshall(arguments);
+  }
+
+  public static String marshallReturn(Object result) {
+    List resultList = new ArrayList(1);
+    resultList.add(result);
+    return marshall(resultList);
+  }
+
+  public static String marshall(Object data) {
+    String json = JSONValue.toJSONString(data);
     String encoded = DatatypeConverter.printBase64Binary(json.getBytes());
-    String marshalled = "data=" + encoded;
-    //System.out.println("marshalled: " + marshalled);
-    return marshalled;
+    return encoded;
+  }
+
+  public static Object unmarshallReturn(String data) {
+    List resultList = new ArrayList();
+    Object result = null;
+    try {
+      System.out.println("unmarshall data: " + data);
+      resultList = (List) unmarshall(data);
+    } catch(Exception e) {
+      throw new KioskException("Invalid arguments.  Invalid JSON.  " + e.getMessage());
+    }
+    if(null==resultList.get(0) && 2==resultList.size()) {
+      result = resultList.get(1);
+    } else if(resultList.size() > 0) {
+      result = resultList.get(0);
+    }
+    return result;
   }
 
   public static Object unmarshall(String data) {
+    if(null==data) {
+      data = "[]";
+    }
     String json = "";
-    List result;
+    Object result;
     try {
       json = new String(DatatypeConverter.parseBase64Binary(data));
       //System.out.println("unmarshall json: " + json);
-      result = (List) JSONValue.parse(json);
+      result = JSONValue.parse(json);
     } catch(Exception e) {
       throw new RuntimeException("Kiosk return was not a JSON array.\n" + json);
     }
 
-    return (0<result.size()) ? result.get(0) : null;
+    return result;
   }
+
   public static Method findMethodByName(Object delegate, String name) {
     Method[] methods = delegate.getClass().getMethods();
     for(Method method : methods) {

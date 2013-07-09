@@ -16,17 +16,11 @@ public class RemoteResource {
   }
 
   public Object method_missing(String action, Object... arguments) {
-    String data = KioskUtils.marshall( arguments );
+    String data = KioskUtils.marshallArguments( arguments );
     String response = Poster.executePost(url(action), data);
-    /*
-    String response = "[\"hello world\"]";
-    response = DatatypeConverter.printBase64Binary(response.getBytes());
-    System.out.println("remote method missing:");
-    System.out.println("  url: " + url(action));
-    System.out.println("  params: " + data);
-    */
-    Object result = KioskUtils.unmarshall(response);
-    System.out.println("  result: " + (String) result);
+    System.out.println("  raw result: " + response);
+    Object result = KioskUtils.unmarshallReturn(response);
+    System.out.println("  result: " + JSONValue.toJSONString(result));
     return result;
   }
 
