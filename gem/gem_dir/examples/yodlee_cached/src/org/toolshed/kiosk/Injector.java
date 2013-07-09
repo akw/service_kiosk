@@ -21,6 +21,19 @@ public class Injector {
     return resources;
   }
 
+  public void createAllResources(Object node, Map config, Map env, String prefix) {
+    Object resource = null;
+
+    for(Object dependency : KioskConfig.getDependencies(config)) {
+      String dependencyName = (String) dependency;
+      if(null==KioskConfig.dependencyUrl(dependencyName, env, prefix)) {
+        throw new KioskException("No dependency defined for " + dependencyName);
+      }
+      resource = createResource(dependency, config, env, prefix);
+      resources.put(dependency, resource);
+    }
+  }
+
   public void injectAll(Object node, Map config, Map env, String prefix) {
     Object resource = null;
 
@@ -131,7 +144,7 @@ public class Injector {
       Object proxiedKiosk = ResourceProxy.create(dependency, resource);
       injectorMethod.invoke(target, proxiedKiosk);
     } catch(Exception e) {
-      System.out.println("[Kiosk] WARNING: Unused dependency.  No injector '" + injector + "'");
+      System.out.println("[Kiosk] WARNING: Dependency injector not found ('" + injector + "').");
       //e.printStackTrace();
     }
   }
