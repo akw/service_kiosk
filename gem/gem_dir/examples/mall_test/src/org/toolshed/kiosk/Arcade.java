@@ -35,11 +35,9 @@ public class Arcade {
     setPort(port());
     Kiosk.setup(this);
     resources = Injector.instance().resourceMap();
-    System.out.println("lister: " + resources.get("lister"));
     post(new Route("/:resource/:action") {
       @Override
       public Object handle(Request request, Response response) {
-        System.out.println("URL: " + request.url());
         Object resource = resources.get(request.params(":resource"));
         List resultList = new ArrayList(1);
         Object result;
@@ -72,7 +70,11 @@ public class Arcade {
   }
 
   public static Object[] parseArgs(String body) {
-    return null;
+    String[] parts = body.split("=");
+    if(null==parts || 2!=parts.length || !parts[0].equals("data")) {
+      return null;
+    }
+    return KioskUtils.unmarshallArguments(parts[1]);
   }
 
   public static void main(String[] args) {

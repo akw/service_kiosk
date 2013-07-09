@@ -25,6 +25,7 @@ public class YodleeCached {
   }
 
   private ServiceLister lister;
+  private ServiceLister indexer;
   private CachedLister cachedLister;
 
   public void setLister(ServiceLister lister) {
@@ -36,6 +37,7 @@ public class YodleeCached {
   }
 
   public void setIndexer(ServiceLister indexer) {
+    this.indexer = indexer;
   }
 
   public void run() {
@@ -48,7 +50,7 @@ public class YodleeCached {
 
     // Test cached call, no args
     list = cachedLister.listAll();
-    System.out.println("list: " + JSONValue.toJSONString(list));
+    //System.out.println("list: " + JSONValue.toJSONString(list));
     String value = (String) list.get("UW Credit Union");
     if(null != value && "" != value) {
       is_good = true;
@@ -65,8 +67,17 @@ public class YodleeCached {
 
     // Test method missing
     is_good = false;
+    list = indexer.two(5, "key");
+    int result = ((Number) list.get("key")).intValue();
+    if(5==result) {
+      is_good = true;
+    }
+    System.out.println("Pass remote method call with arguments:    [ " + is_good + " ] ");
+
+    // Test method missing
+    is_good = false;
     list = lister.two(5, "key");
-    int result = (Integer) list.get("key");
+    result = ((Number) list.get("key")).intValue();
     if(5==result) {
       is_good = true;
     }
@@ -75,7 +86,7 @@ public class YodleeCached {
     // Test method missing with args
     is_good = false;
     list = lister.three(3, "key");
-    result = (Integer) list.get("key");
+    result = ((Number) list.get("key")).intValue();
     if(3==result) {
       is_good = true;
     }

@@ -2,6 +2,7 @@ package org.toolshed.kiosk;
 
 import java.lang.reflect.*;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import javax.xml.bind.DatatypeConverter;
 import org.json.simple.JSONValue;
@@ -26,7 +27,7 @@ public class KioskUtils {
     if(null==arguments) {
       arguments = new Object[0];
     }
-    return "data=" + marshall(arguments);
+    return "data=" + marshall(Arrays.asList(arguments));
   }
 
   public static String marshallReturn(Object result) {
@@ -37,6 +38,7 @@ public class KioskUtils {
 
   public static String marshall(Object data) {
     String json = JSONValue.toJSONString(data);
+    //System.out.println("marshall json: " + json);
     String encoded = DatatypeConverter.printBase64Binary(json.getBytes());
     return encoded;
   }
@@ -45,7 +47,7 @@ public class KioskUtils {
     List resultList = new ArrayList();
     Object result = null;
     try {
-      System.out.println("unmarshall data: " + data);
+      //System.out.println("unmarshall data: " + data);
       resultList = (List) unmarshall(data);
     } catch(Exception e) {
       throw new KioskException("Invalid arguments.  Invalid JSON.  " + e.getMessage());
@@ -56,6 +58,20 @@ public class KioskUtils {
       result = resultList.get(0);
     }
     return result;
+  }
+
+  public static Object[] unmarshallArguments(String data) {
+    List resultList = new ArrayList();
+    Object result = null;
+    try {
+      resultList = (List) unmarshall(data);
+    } catch(Exception e) {
+      throw new KioskException("Invalid arguments.  Invalid JSON.  " + e.getMessage());
+    }
+    if(null==resultList || 0==resultList.size()) {
+      return null;
+    }
+    return resultList.toArray();
   }
 
   public static Object unmarshall(String data) {
@@ -88,11 +104,11 @@ public class KioskUtils {
   public static Method findMethod(Object delegate, String name, Object[] args) {
     Method[] methods = delegate.getClass().getMethods();
     for(Method method : methods) {
-      //System.out.println("  findMethod: " + method);
+      //System.out.println("  findMethod: " + name + " ?= " + method.getName());
       int parameter_count = method.getParameterTypes().length;
       //System.out.println("    parameter count: " + parameter_count);
       //System.out.println("    args: " + ((null==args) ? 0 : args[0]));
-      if(name.equals(method.getName()) && ((null==args && 0==parameter_count) || (args.length==parameter_count))) {
+      if(name.equals(method.getName()) && ((null==args && 0==parameter_count) || (null!= args && args.length==parameter_count))) {
         //System.out.println("  >>> match");
         return method;
       }

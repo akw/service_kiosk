@@ -1,5 +1,7 @@
 package org.toolshed.kiosk;
 
+import java.lang.Integer;
+import java.lang.Long;
 import java.lang.reflect.*;
 import java.lang.reflect.InvocationTargetException;
 import org.json.simple.JSONValue;
@@ -20,16 +22,30 @@ public class ResourceProxy implements InvocationHandler {
   @Override
   public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
     //System.out.println("ResourceProxy invoke: " + method.getName());
-    return invoke(proxy, method.getName(), method.getReturnType(), args);
+    return invokeMethod(delegate, method.getName(), method.getReturnType(), args);
   }
 
   public static Object invokeMethod(Object target, String methodName, Class returnType, Object[] args) throws Throwable {
     Method actual = KioskUtils.findMethod(target, methodName, args);
+    //System.out.println("  >>> invokeMethod: " + methodName);
+    if(null!=args) {
+      //System.out.println("  >>> invokeMethod arg0 " + (String) args[0]);
+      //System.out.println("  >>> invokeMethod arg1 " + (String) args[1]);
+      //System.out.println("  >>> invokeMethod arg2 " + (String) args[2]);
+    }
     if(methodName.equals("invoke_method")) {
+      //System.out.println("invokeMethod is generic: args " + JSONValue.toJSONString(args));
       methodName = (String) args[0];
       returnType = (Class) args[1];
-      args = (Object[]) args[2];
+      if(2 < args.length) {
+        args = (Object[]) args[2];
+      } else {
+        args = null;
+      }
+      //System.out.println("  finding invoke_method" );
       actual = KioskUtils.findMethod(target, methodName, args);
+    } else {
+      //System.out.println("invokeMethod is specific: args " + JSONValue.toJSONString(args));
     }
     Object result;
     if(actual==null) {
@@ -47,10 +63,27 @@ public class ResourceProxy implements InvocationHandler {
 
     } else {
       //System.out.println("invoke on: " + actual);
-      result = actual.invoke(target, args);
+      result = actual.invoke(target, typedArguments(actual, args));
     }
     //System.out.println("invoke called: " + result);
     return (null==returnType) ? result : returnType.cast(result);
+  }
+
+  public static Object[] typedArguments(Method target, Object[] data) {
+    int i=0;
+    for(Class argumentType : target.getParameterTypes()) {
+      //System.out.println("typedArguments: " + argumentType.getName() + " ?= " + data[i].getClass().getName());
+      Class argumentClass = data[i].getClass();
+      if(int.class==argumentType && Integer.class==data[i].getClass()) {
+        //System.out.println("  casting Integer to int");
+        data[i] = ((Integer) data[i]).intValue();
+      } else if(int.class==argumentType && Long.class==data[i].getClass()) {
+        //System.out.println("  casting Long to int");
+        data[i] = ((Long) data[i]).intValue();
+      }
+      i++;
+    }
+    return data;
   }
 
   public Object invoke(Object proxy, String methodName, Class returnType, Object[] args) throws Throwable {
