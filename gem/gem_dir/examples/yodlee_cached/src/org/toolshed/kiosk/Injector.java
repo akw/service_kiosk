@@ -27,10 +27,16 @@ public class Injector {
     for(Object dependency : KioskConfig.getDependencies(config)) {
       String dependencyName = (String) dependency;
       if(null==KioskConfig.dependencyUrl(dependencyName, env, prefix)) {
-        throw new KioskException("No dependency defined for " + dependencyName);
+        throw new KioskException("No env var (" + KioskConfig.baseName(dependencyName, prefix) + ") for " + dependencyName);
       }
       resource = createResource(dependency, config, env, prefix);
       resources.put(dependency, resource);
+      /*
+      String label = KioskConfig.resourceLabel(dependencyName, prefix);
+      String dependencyUrl = KioskConfig.dependencyUrl(dependencyName, env, prefix);
+      String resourceID = resource.toString();
+      System.out.println("[Kiosk] " + label + " -> " + dependencyUrl + "  (" + resourceID + ")");
+      */
     }
   }
 
@@ -39,20 +45,34 @@ public class Injector {
 
     for(Object dependency : KioskConfig.getDependencies(config)) {
       String dependencyName = (String) dependency;
+      String label = KioskConfig.resourceLabel(dependencyName, prefix);
+
+      //System.out.print("[Kiosk] " + label + ": ");
       if(null==KioskConfig.dependencyUrl(dependencyName, env, prefix)) {
-        throw new KioskException("No dependency defined for " + dependencyName);
+        throw new KioskException("No env var (" + KioskConfig.baseName(dependencyName, prefix) + ")");
       }
-      if(resources.containsKey(dependency)) {
-        resource = resources.get(dependency);
+      String url = KioskConfig.dependencyUrl(dependencyName, env, prefix);
+      //System.out.println(url);
+      String dependencyReference = KioskConfig.dependencyTarget(url);
+      if(isInternalResource(url)) {
+        if(null==dependencyReference || !resources.containsKey(dependencyReference)) {
+          throw new KioskException("Invalid Kiosk URL: " + url);
+        }
+        resource = resources.get(dependencyReference);
         if(null==prefix || 0==prefix.length()) {
-          injectAll(resource, KioskConfig.readConfig(dependencyName, config), env, dependencyName);
+          Map kioskConfig = KioskConfig.readConfig(dependencyName, config);
+          injectAll(resource, kioskConfig, env, dependencyName);
+          if(prefix.equals("")) {
+            injectAllSettings(resource, kioskConfig, env, dependencyName);
+          }
         }
 
       } else {
         resource = createResource(dependency, config, env, prefix);
         resources.put(dependency, resource);
       }
-      inject(node, resource, injectorName(dependency, config));
+      String injectorName = injectorName(dependency, config);
+      inject(node, resource, injectorName, prefix, url);
     }
   }
 
@@ -62,7 +82,6 @@ public class Injector {
     Object resource = null;
 
     if(isInternalResource(dependencyUrl)) {
-      System.out.println("[Kiosk] resource " + KioskConfig.resourceLabel(dependencyName, prefix) + " -> " + dependencyUrl);
 
       if(resources.containsKey(resourceKey(dependencyUrl))) {
         resource = resources.get(resourceKey(dependencyUrl));
@@ -74,11 +93,10 @@ public class Injector {
         String resourceClass = KioskConfig.findResourceClass(dependencyName, config, kioskConfig);
         resource = internalResource(dependencyName, resourceClass, jars);
 
-        injectAllSettings(resource, kioskConfig, env, dependencyName);
+        //injectAllSettings(resource, kioskConfig, env, dependencyName);
       }
 
     } else {
-      System.out.println("[Kiosk] remote resource " + dependencyUrl);
       resource = new RemoteResource( dependencyUrl );
       //  create remote resource
     }
@@ -98,11 +116,12 @@ public class Injector {
   public void injectSetting(Object resource, Object settingKey, Map kioskConfig, Map env, String prefix) {
     String settingName = (String) settingKey;
     String injectorName = injectorName(settingName, kioskConfig);
+    String host = (prefix.equals("")) ? "root" : prefix;
     try {
       String value = KioskConfig.setting(settingName, env, prefix);
-      System.out.println("[Kiosk] setting " + KioskConfig.resourceLabel(settingName, prefix) + "=" + value);
       Method injectorMethod = KioskUtils.findMethodWithParameterCount(resource, injectorName, 1);
       injectorMethod.invoke(resource, value);
+      System.out.println("[Kiosk]     " + host +" . " + injectorName(settingKey, kioskConfig) + "(\"" + value + "\")");
     } catch(Exception e) {
       // e.printStackTrace();
       throw new KioskException("No injector found: " + injectorName);
@@ -137,15 +156,22 @@ public class Injector {
     return injector;
   }
 
-  public void inject(Object target, Object resource, String injector) {
+  public void inject(Object target, Object resource, String injector, String prefix, String url) {
+    String host = (prefix.equals("")) ? "root" : prefix;
     try {
       Method injectorMethod = KioskUtils.findMethodWithParameterCount(target, injector, 1);
-      Class dependency = injectorMethod.getParameterTypes()[0];
-      Object proxiedKiosk = ResourceProxy.create(dependency, resource);
+      if(null==injectorMethod) {
+        System.out.println("[Kiosk]   " + host + " . " + injector + " !! WARNING: no such method");
+        return;
+      }
+      Class[] types = injectorMethod.getParameterTypes();
+      Class dependency = types[0];
+      Object proxiedKiosk = ResourceProxy.create(dependency, resource, dependency.getClassLoader());
       injectorMethod.invoke(target, proxiedKiosk);
+      System.out.println("[Kiosk]   " + host + " . " + injector + " <- " + url);
     } catch(Exception e) {
-      System.out.println("[Kiosk] WARNING: Dependency injector not found ('" + injector + "').");
-      //e.printStackTrace();
+      System.out.println("[Kiosk]   " + host + " . " + injector + " !! WARNING: no such method");
+      e.printStackTrace();
     }
   }
 

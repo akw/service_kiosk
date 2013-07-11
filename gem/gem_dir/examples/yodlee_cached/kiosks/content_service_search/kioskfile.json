@@ -1,0 +1,19 @@
+{
+  "name": "content_service_search",
+  "version": "0.1.0",
+  "language": "java",
+  "description": "This kiosk provides substring searches against a list of Content Service Names.",
+
+  "settings": {
+  },
+
+  "dependencies": {
+    "indexer": {
+      "resource": "ServiceIndexer",
+      "kiosk": ["*", "*"],
+      "description": "Source for the index map that the search will be performed on"
+    }
+  },
+
+  "namespace": "sample"
+}

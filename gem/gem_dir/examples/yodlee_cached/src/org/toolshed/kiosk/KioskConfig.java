@@ -133,7 +133,7 @@ public class KioskConfig {
     if(null==prefix || 0==prefix.length()) {
       return name;
     }
-    return prefix + "_" + name;
+    return prefix + "__" + name;
   }
 
   public static String baseName(String name, String prefix) {
@@ -144,6 +144,15 @@ public class KioskConfig {
     return !env.containsKey(baseName(name, prefix)) ?
             null : 
             (String) env.get(baseName(name, prefix));
+  }
+
+  public static String dependencyTarget(String url) {
+    String[] parts = url.split("://");
+
+    if(null!=parts && 2==parts.length && parts[0].equals("kiosk")) {
+      return parts[1];
+    }
+    return null;
   }
 
   public static String setting(String name, Map env, String prefix) {

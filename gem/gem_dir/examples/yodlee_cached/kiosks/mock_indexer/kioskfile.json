@@ -1,0 +1,14 @@
+{
+  "name": "mock_indexer",
+  "version": "0.1.0",
+  "language": "java",
+  "description": "Mock out Content Service Index.",
+
+  "settings": {
+  },
+
+  "dependencies": {
+  },
+
+  "namespace": "sample"
+}

@@ -12,6 +12,18 @@
   },
 
   "dependencies": {
+    "search": {
+      "resource": "ContentServiceSearch",
+      "kiosk": ["content_service_search", "*"],
+      "description": "Use of a simple substring matching service against names of Content Services from a provider like Yodlee.  Results should map Display Names to ContentService ID  Results should map Display Names to ContentService IDs."
+    },
+
+    "mock_indexer": {
+      "resource": "ServiceIndexer",
+      "kiosk": ["mock_indexer", "*"],
+      "description": "A simple mock component for providing a Content Service Index"
+    },
+
     "cache": {
       "resource": "CachedResource",
       "kiosk": ["memory_cache", "*"],
@@ -21,7 +33,7 @@
     "backupcache": {
       "resource": "CachedResource",
       "kiosk": ["memory_cache", "*"],
-      "description": "A backup test cache"
+      "description": "A backup test cache.  Isn't actually used. but to demonstrate two dependencies to one kiosk codebase"
     },
 
     "indexer": {

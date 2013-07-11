@@ -9,9 +9,8 @@ import org.json.simple.JSONValue;
 public class ResourceProxy implements InvocationHandler {
   private final Object delegate;
 
-  public static Object create(Class targetClass, Object targetObject) {
-    ClassLoader cl = Thread.currentThread().getContextClassLoader();
-    return Proxy.newProxyInstance(cl, new Class[]{targetClass},
+  public static Object create(Class targetClass, Object targetObject, ClassLoader loader) {
+    return Proxy.newProxyInstance(loader, new Class[]{targetClass},
         new ResourceProxy(targetObject));
   }
 
@@ -57,13 +56,18 @@ public class ResourceProxy implements InvocationHandler {
         //System.out.println("invoke method_missing: " + methodName);
         result = actual.invoke(target, combinedArgs(methodName, args));
       } catch(InvocationTargetException e) {
-        e.printStackTrace();
+        //e.printStackTrace();
         throw new RuntimeException("No such method: " + methodName);
       }
 
     } else {
       //System.out.println("invoke on: " + actual);
-      result = actual.invoke(target, typedArguments(actual, args));
+      try {
+        result = actual.invoke(target, typedArguments(actual, args));
+      } catch(InvocationTargetException e) {
+        //e.printStackTrace();
+        throw new KioskException("Exception during method: " + methodName, e);
+      }
     }
     //System.out.println("invoke called: " + result);
     return (null==returnType) ? result : returnType.cast(result);

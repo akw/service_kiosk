@@ -120,7 +120,9 @@ public class KioskUtils {
     Method[] methods = delegate.getClass().getMethods();
     for(Method method : methods) {
       int parameter_count = method.getParameterTypes().length;
+      //System.out.println("  findMethod: " + name + " ?= " + method.getName() + ", " + count + " ?= " + parameter_count);
       if(name.equals(method.getName()) && count==parameter_count) {
+        //System.out.println("  >>> match");
         return method;
       }
     }
