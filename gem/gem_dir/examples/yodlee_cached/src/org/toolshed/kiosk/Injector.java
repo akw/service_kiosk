@@ -31,12 +31,6 @@ public class Injector {
       }
       resource = createResource(dependency, config, env, prefix);
       resources.put(dependency, resource);
-      /*
-      String label = KioskConfig.resourceLabel(dependencyName, prefix);
-      String dependencyUrl = KioskConfig.dependencyUrl(dependencyName, env, prefix);
-      String resourceID = resource.toString();
-      System.out.println("[Kiosk] " + label + " -> " + dependencyUrl + "  (" + resourceID + ")");
-      */
     }
   }
 
@@ -47,12 +41,10 @@ public class Injector {
       String dependencyName = (String) dependency;
       String label = KioskConfig.resourceLabel(dependencyName, prefix);
 
-      //System.out.print("[Kiosk] " + label + ": ");
       if(null==KioskConfig.dependencyUrl(dependencyName, env, prefix)) {
         throw new KioskException("No env var (" + KioskConfig.baseName(dependencyName, prefix) + ")");
       }
       String url = KioskConfig.dependencyUrl(dependencyName, env, prefix);
-      //System.out.println(url);
       String dependencyReference = KioskConfig.dependencyTarget(url);
       if(isInternalResource(url)) {
         if(null==dependencyReference || !resources.containsKey(dependencyReference)) {
@@ -92,8 +84,6 @@ public class Injector {
         Map kioskConfig = KioskConfig.readConfig(dependencyName, config);
         String resourceClass = KioskConfig.findResourceClass(dependencyName, config, kioskConfig);
         resource = internalResource(dependencyName, resourceClass, jars);
-
-        //injectAllSettings(resource, kioskConfig, env, dependencyName);
       }
 
     } else {
@@ -121,7 +111,7 @@ public class Injector {
       String value = KioskConfig.setting(settingName, env, prefix);
       Method injectorMethod = KioskUtils.findMethodWithParameterCount(resource, injectorName, 1);
       injectorMethod.invoke(resource, value);
-      System.out.println("[Kiosk]     " + host +" . " + injectorName(settingKey, kioskConfig) + "(\"" + value + "\")");
+      Log.info("    " + host +" . " + injectorName(settingKey, kioskConfig) + " <- " + value);
     } catch(Exception e) {
       // e.printStackTrace();
       throw new KioskException("No injector found: " + injectorName);
@@ -161,16 +151,16 @@ public class Injector {
     try {
       Method injectorMethod = KioskUtils.findMethodWithParameterCount(target, injector, 1);
       if(null==injectorMethod) {
-        System.out.println("[Kiosk]   " + host + " . " + injector + " !! WARNING: no such method");
+        Log.info("  " + host + " . " + injector + " -- method not found.");
         return;
       }
       Class[] types = injectorMethod.getParameterTypes();
       Class dependency = types[0];
       Object proxiedKiosk = ResourceProxy.create(dependency, resource, dependency.getClassLoader());
       injectorMethod.invoke(target, proxiedKiosk);
-      System.out.println("[Kiosk]   " + host + " . " + injector + " <- " + url);
+      Log.info("  " + host + " . " + injector + " <- " + url);
     } catch(Exception e) {
-      System.out.println("[Kiosk]   " + host + " . " + injector + " !! WARNING: no such method");
+      Log.info("  " + host + " . " + injector + " -- method not found.");
       e.printStackTrace();
     }
   }

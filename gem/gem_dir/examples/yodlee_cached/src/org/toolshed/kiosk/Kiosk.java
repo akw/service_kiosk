@@ -19,10 +19,10 @@ public class Kiosk {
 
     // Call injectAll twice.  Second time to inject secondary dependencies once all primaries
     // have been created.
-    System.out.println("[Kiosk] -- setup");
+    Log.info("// setup");
     injector.createAllResources(root, config, env, "");
     injector.injectAll(root, config, env, "");
-    System.out.println("[Kiosk] -- done\n");
+    Log.info("//\n");
   }
 
   public Kiosk(String handle) {
