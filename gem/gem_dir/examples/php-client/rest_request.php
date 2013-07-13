@@ -12,8 +12,7 @@ class RestRequest
 	protected $responseBody;
 	protected $responseInfo;
 	
-	public function __construct ($url = null, $verb = 'GET', $requestBody = null)
-	{
+	public function __construct ($url = null, $verb = 'GET', $requestBody = null) {
 		$this->url				= $url;
 		$this->verb				= $verb;
 		$this->requestBody		= $requestBody;
@@ -25,8 +24,7 @@ class RestRequest
 		$this->responseInfo		= null;
 	}
 	
-	public function flush ()
-	{
+	public function flush () {
 		$this->requestBody		= null;
 		$this->requestLength	= 0;
 		$this->verb				= 'GET';
@@ -34,8 +32,7 @@ class RestRequest
 		$this->responseInfo		= null;
 	}
 	
-	public function execute ()
-	{
+	public function execute () {
 		$ch = curl_init();
 		$this->setAuth($ch);
 		
@@ -103,6 +100,7 @@ class RestRequest
 		curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "POST");
 		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 		curl_setopt($ch, CURLOPT_POSTFIELDS, 'data=' . $this->requestBody);
+    error_log("post doby" . $this->requestBody);
 		//curl_setopt($ch, CURLOPT_POSTFIELDS, $this->requestBody);
 		curl_setopt($ch, CURLOPT_POST, 1);
 		

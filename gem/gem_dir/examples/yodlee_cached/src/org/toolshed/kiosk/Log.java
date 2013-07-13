@@ -18,7 +18,7 @@ public class Log {
   }
 
   private static String label(int level) {
-    if(level==WARN) {return "WARNING! ";}
+    if(level==WARN) {return "WARNING: ";}
     if(level==ERROR) {return "ERROR: ";}
     if(level==FATAL) {return "FATAL ERROR: ";}
     return "";

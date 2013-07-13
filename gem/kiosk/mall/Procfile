@@ -1,2 +1,0 @@
-HelloWorldKiosk: ruby -e 'Dir.chdir "/vagrant/mall/kiosks/HelloWorldKiosk"; exec "env KIOSK_PORT=9901 ../../lib/start_kiosk.sh"'
-JavaHello: ruby -e 'Dir.chdir "/vagrant/mall/kiosks/JavaHello"; exec "env KIOSK_PORT=9902 ../../lib/start_kiosk.sh"'

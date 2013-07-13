@@ -1,7 +1,0 @@
-task :cc do
-  system "javac -sourcepath src -d classes src/sample/JavaHello.java"
-end
-
-task :jar do
-  system "cd classes; jar cf ../lib/JavaHello.jar sample/JavaHello.class"
-end
