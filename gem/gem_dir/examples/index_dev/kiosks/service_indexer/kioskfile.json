@@ -1,0 +1,19 @@
+{
+  "name": "service_indexer",
+  "version": "0.1.0",
+  "language": "java",
+  "description": "ServiceIndexer takes information about multiple Yodlee-provided content services and produces a map of content-service-display-names to maps of data (including id, mfa type and container_type.",
+
+  "settings": {
+  },
+
+  "dependencies": {
+    "lister": {
+      "resource": "ServiceLister",
+      "kiosk": ["yodlee", "*"],
+      "description": "The ServiceIndexer is dependent on a component that provides source data from which to compile the map described above."
+    }
+  },
+
+  "namespace": "sample"
+}

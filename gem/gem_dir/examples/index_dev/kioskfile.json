@@ -1,0 +1,22 @@
+{
+  "name": "indexer_dev",
+  "version": "0.1.0",
+  "language": "java",
+  "description": "This project is for the development of a service indexer which takes Yodlee-supplied Content Service data and produces a Map.",
+
+  "settings": {
+  },
+
+  "dependencies": {
+    "indexer": {
+      "resource": "ServiceIndexer",
+      "kiosk": ["service_indexer", "*"],
+      "description": "This is the component under development."
+    },
+    "lister": {
+      "resource": "ServiceLister",
+      "kiosk": ["mock_lister", "*"],
+      "description": "For this development we'll be using a mock version of the service lister."
+    }
+  }
+}

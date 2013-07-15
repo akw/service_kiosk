@@ -1,0 +1,14 @@
+{
+  "name": "mock_lister",
+  "version": "0.1.0",
+  "language": "java",
+  "description": "Mock out Content Service lister.",
+
+  "settings": {
+  },
+
+  "dependencies": {
+  },
+
+  "namespace": "sample"
+}

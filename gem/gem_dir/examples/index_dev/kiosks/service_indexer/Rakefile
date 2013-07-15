@@ -1,0 +1,19 @@
+task :default => [:cc, :jar]
+
+task :cc do
+  system "javac -sourcepath src -d classes -cp . " + sources
+end
+
+task :jar do
+  Dir.chdir 'classes'
+  system "jar cf ../lib/sample.jar " + classes
+  Dir.chdir '..'
+end
+
+def sources
+  Dir["./src/**/*.java"].join(' ')
+end
+
+def classes
+  Dir["./**/*.class"].join(' ').gsub(/\$/, "\\$")
+end

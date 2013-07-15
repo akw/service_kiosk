@@ -22,7 +22,7 @@ def kiosk_sources
 end
 
 def kiosk_classes
-  Dir["./org/toolshed/kiosk/**/*.class"].join(' ')
+  Dir["./org/toolshed/kiosk/**/*.class"].join(' ').gsub(/\$/, "\\$")
 end
 
 def client_sources

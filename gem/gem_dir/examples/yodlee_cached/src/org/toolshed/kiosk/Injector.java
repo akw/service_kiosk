@@ -135,7 +135,7 @@ public class Injector {
       resourceClass = Class.forName(className, true, child);
       result = resourceClass.newInstance();
     } catch( Exception e ) {
-      throw new KioskException("Couldn't create " + resourceName + ": " + e.getMessage());
+      throw new KioskException("Couldn't create " + resourceName + ": " + e.getMessage(), e);
     }
     return result;
   }
